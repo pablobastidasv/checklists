@@ -8,13 +8,13 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 
 @QuarkusTest
-@TestSecurity(user = "alice")
 class GreetingResourceTest {
 
     @Test
+    @TestSecurity(user = "alice")
     void checklist() {
         given()
-                .when().get("checklists")
+                .when().get("api/checklists")
                 .then()
                 .statusCode(200)
                 .body("[0].status", is(true));
