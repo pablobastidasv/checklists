@@ -2,9 +2,9 @@ package co.bastriguez;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.oidc.Claim;
 import io.quarkus.test.security.oidc.OidcSecurity;
 import io.quarkus.test.security.oidc.UserInfo;
+import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -30,15 +30,14 @@ class GreetingResourceTest {
     @Test
     @TestSecurity(user = "alice")
     @OidcSecurity(
-            claims = {
-                    @Claim(key = "sub", value = "alice"),
-                    @Claim(key = "picture", value = "https://test.biz/alice.png"),
-            },
             userinfo = {
+                    @UserInfo(key = "sub", value = "alice"),
+                    @UserInfo(key = "picture", value = "https://test.biz/alice.png"),
                     @UserInfo(key = "email", value = "alice@test.biz"),
                     @UserInfo(key = "name", value = "Alice Test"),
             }
     )
+    @DisplayName("should return user info")
     void userinfoEndpoint(){
         given()
                 .when().get("api/userinfo")
@@ -52,6 +51,7 @@ class GreetingResourceTest {
 
     @Test
     @TestSecurity(user = "alice")
+    @DisplayName("should returned default user image if no picture claim")
     void defaultUserImage() {
         given()
                 .when().get("api/userinfo")
