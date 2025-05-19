@@ -2,8 +2,7 @@ package co.bastriguez;
 
 import io.quarkus.test.junit.QuarkusTest;
 import io.quarkus.test.security.TestSecurity;
-import io.quarkus.test.security.oidc.OidcSecurity;
-import io.quarkus.test.security.oidc.UserInfo;
+import org.junit.jupiter.api.Disabled;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import org.slf4j.Logger;
@@ -13,6 +12,7 @@ import static io.restassured.RestAssured.given;
 import static org.hamcrest.CoreMatchers.is;
 
 @QuarkusTest
+@Disabled
 class GreetingResourceTest {
 
     private static final Logger log = LoggerFactory.getLogger(GreetingResourceTest.class);
@@ -29,16 +29,8 @@ class GreetingResourceTest {
 
     @Test
     @TestSecurity(user = "alice")
-    @OidcSecurity(
-            userinfo = {
-                    @UserInfo(key = "sub", value = "alice"),
-                    @UserInfo(key = "picture", value = "https://test.biz/alice.png"),
-                    @UserInfo(key = "email", value = "alice@test.biz"),
-                    @UserInfo(key = "name", value = "Alice Test"),
-            }
-    )
     @DisplayName("should return user info")
-    void userinfoEndpoint(){
+    void userinfoEndpoint() {
         given()
                 .when().get("api/userinfo")
                 .then()

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getUserInfo } from '../api/users'
+import { getUserInfo } from '@/api/users'
 
 const UserInfo = () => {
     const [user, setUser] = useState(null)

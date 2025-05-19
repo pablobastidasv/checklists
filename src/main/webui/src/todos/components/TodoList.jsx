@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react'
-import { getChecklists } from '../api/checklists'
+import { getChecklists } from '@/api/checklists'
 
 const TodoList = () => {
     const [todos, setTodos] = useState([])
@@ -26,7 +26,7 @@ const TodoList = () => {
     return (
         <>
             {loading && <div>Loading...</div>}
-            {isError && <div>Error: {error}</div>}
+            {isError && <div>Error: {error.message}</div>}
             {todos && <div>
                 <ul>
                     {todos.map((todo) => (
