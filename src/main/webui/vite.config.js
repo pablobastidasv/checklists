@@ -8,6 +8,7 @@ export default defineConfig({
         alias: {
             '@': `${process.cwd()}/src`,
             '@auth': `${process.cwd()}/src/shared/auth`,
+            '@core': `${process.cwd()}/src/shared/core`,
         },
     },
 })
