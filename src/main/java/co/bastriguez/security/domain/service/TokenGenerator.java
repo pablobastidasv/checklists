@@ -6,20 +6,31 @@ import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.time.Duration;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class TokenGenerator {
 
-    @ConfigProperty(name = "mp.jwt.verify.issuer", defaultValue = "https://dev.bastriguez.net/issuer")
-    String issuer;
+  @ConfigProperty(name = "mp.jwt.verify.issuer", defaultValue = "https://dev.bastriguez.net/issuer")
+  String issuer;
 
-    public String generateToken(User user) {
-        return Jwt.issuer(issuer)
-                .subject(user.id.toString())
-                .groups(user.roles.stream().map(role -> role.name).collect(Collectors.toSet()))
-                .claim("email", user.email)
-                .expiresIn(Duration.ofHours(24))
-                .sign();
-    }
+  public String generateToken(Token token) {
+    return Jwt.issuer(issuer)
+      .subject(token.sub)
+      .groups(token.roles)
+      .claim("email", token.email)
+      .expiresIn(Duration.ofHours(24))
+      .sign();
+  }
+
+  public record Token(
+    String sub,
+    String iat,
+    String preferred_username,
+    String email,
+    Set<String> roles
+  ) {
+  }
+
 }

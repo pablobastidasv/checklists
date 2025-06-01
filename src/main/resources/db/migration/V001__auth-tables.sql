@@ -2,6 +2,7 @@ create table users (
   id uuid not null,
   email text not null,
   password text not null,
+  preferred_name text not null,
   created_at timestamp default current_timestamp
 );
 

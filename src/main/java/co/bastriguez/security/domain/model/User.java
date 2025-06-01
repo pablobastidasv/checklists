@@ -6,6 +6,7 @@ import io.quarkus.security.jpa.Roles;
 import io.quarkus.security.jpa.UserDefinition;
 import io.quarkus.security.jpa.Username;
 import jakarta.persistence.*;
+import jakarta.validation.constraints.NotBlank;
 
 import java.util.Set;
 import java.util.UUID;
@@ -14,20 +15,25 @@ import java.util.UUID;
 @Table(name = "users")
 @UserDefinition
 public class User extends PanacheEntityBase {
-    @Id
-    @GeneratedValue(strategy = GenerationType.UUID)
-    public UUID id;
-    @Username
-    @Column(unique = true)
-    public String email;
-    @Password
-    public String password;
-    @Roles
-    @ManyToMany(fetch = FetchType.EAGER)
-    @JoinTable(
-            name = "user_roles",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "role_name")
-    )
-    public Set<Role> roles;
+  @Id
+  @GeneratedValue(strategy = GenerationType.UUID)
+  public UUID id;
+  @NotBlank
+  @Username
+  @Column(unique = true)
+  public String email;
+  @NotBlank
+  @Password
+  public String password;
+  @Roles
+  @ManyToMany(fetch = FetchType.EAGER)
+  @JoinTable(
+    name = "user_roles",
+    joinColumns = @JoinColumn(name = "user_id"),
+    inverseJoinColumns = @JoinColumn(name = "role_name")
+  )
+  public Set<Role> roles;
+
+  @NotBlank
+  public String preferredName;
 }

@@ -10,8 +10,8 @@ import jakarta.persistence.Table;
 @Table(name = "roles")
 public class Role extends PanacheEntityBase {
 
-    @Id
-    @RolesValue
-    public String name;
-    public String description;
+  @Id
+  @RolesValue
+  public String name;
+  public String description;
 }
