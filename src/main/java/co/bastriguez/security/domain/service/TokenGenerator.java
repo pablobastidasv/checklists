@@ -1,13 +1,11 @@
 package co.bastriguez.security.domain.service;
 
-import co.bastriguez.security.domain.model.User;
 import io.smallrye.jwt.build.Jwt;
 import jakarta.enterprise.context.ApplicationScoped;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
 
 import java.time.Duration;
 import java.util.Set;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class TokenGenerator {
