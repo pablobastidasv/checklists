@@ -4,7 +4,6 @@ import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import jakarta.json.Json;
-import jakarta.json.JsonObjectBuilder;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
@@ -19,24 +18,24 @@ import static org.hamcrest.Matchers.notNullValue;
 class CheckListResourceTest {
 
   private static class CheckListBuilder {
-    private static JsonObjectBuilder jsonBuilder() {
+
+    String id = UUID.randomUUID().toString();
+    String name = "Default Checklist";
+    String description = "This is a default checklist";
+
+    public String build() {
       return Json.createObjectBuilder()
-        .add("id", UUID.randomUUID().toString())
-        .add("name", "Default Checklist")
-        .add("description", "This is a default checklist");
-    }
-
-    public static String build() {
-      return jsonBuilder()
-        .build()
-        .toString();
+        .add("id", id)
+        .add("name", name)
+        .add("description", description)
+        .build().toString();
     }
 
 
-    public static String build(Consumer<JsonObjectBuilder> builder) {
-      var jsonBuilder = jsonBuilder();
+    public static String build(Consumer<CheckListBuilder> builder) {
+      var jsonBuilder = new CheckListBuilder();
       builder.accept(jsonBuilder);
-      return jsonBuilder.build().toString();
+      return jsonBuilder.build();
     }
   }
 
@@ -46,7 +45,7 @@ class CheckListResourceTest {
     @Test
     @AliceTestUser
     void shouldReturn201WhenDataIsValid() {
-      var checklist = CheckListBuilder.build();
+      var checklist = new CheckListBuilder().build();
 
       given()
         .contentType("application/json")
@@ -60,15 +59,13 @@ class CheckListResourceTest {
     @Test
     @AliceTestUser
     void shouldReturn400WhenDataIsInvalid() {
-      var invalidChecklist = Json.createObjectBuilder()
-        .add("id", UUID.randomUUID().toString())
-        .add("name", "") // Invalid: name is empty
-        .add("description", "This is a test checklist")
-        .build();
+      var invalidChecklist = CheckListBuilder.build(builder -> {
+        builder.name = ""; // Invalid name
+      });
 
       given()
         .contentType("application/json")
-        .body(invalidChecklist.toString())
+        .body(invalidChecklist)
         .when()
         .post("/api/checklists")
         .then()
@@ -93,9 +90,11 @@ class CheckListResourceTest {
     void shouldReturn200WhenChecklistExists() {
       var checklistId = UUID.randomUUID().toString();
 
-      var payload = CheckListBuilder.build(builder -> builder.add("id", checklistId)
-        .add("name", "Existing Checklist")
-        .add("description", "This checklist already exists"));
+      var payload = CheckListBuilder.build(builder -> {
+        builder.id = checklistId;
+        builder.name = "Existing Checklist";
+        builder.description = "This checklist already exists";
+      });
 
       // create a checklist first
       given()
