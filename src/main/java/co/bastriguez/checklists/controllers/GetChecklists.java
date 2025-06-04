@@ -28,7 +28,7 @@ public class GetChecklists {
     var checklists = Json.createArrayBuilder();
     data.items().forEach(checklist -> {
       var i = Json.createObjectBuilder()
-        .add("id", checklist.id())
+        .add("id", checklist.id().toString())
         .add("name", checklist.name())
         .add("description", checklist.description())
         .add("itemsCount", checklist.itemsCount())
