@@ -1,4 +1,4 @@
-package co.bastriguez.checklists.controllers;
+package co.bastriguez.security;
 
 import io.quarkus.test.security.TestSecurity;
 import io.quarkus.test.security.jwt.Claim;

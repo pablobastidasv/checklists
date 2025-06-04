@@ -1,6 +1,6 @@
 package co.bastriguez.checklists.services;
 
-import co.bastriguez.checklists.domain.model.Checklist;
+import co.bastriguez.checklists.models.Checklist;
 import co.bastriguez.failures.models.ResourceNotFound;
 import jakarta.enterprise.context.ApplicationScoped;
 

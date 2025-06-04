@@ -1,5 +1,6 @@
 package co.bastriguez.checklists.controllers;
 
+import co.bastriguez.security.AliceTestUser;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
@@ -11,8 +12,7 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 import static io.restassured.RestAssured.given;
-import static org.hamcrest.Matchers.equalTo;
-import static org.hamcrest.Matchers.notNullValue;
+import static org.hamcrest.Matchers.*;
 
 @QuarkusTest
 class CheckListResourceTest {
@@ -41,6 +41,19 @@ class CheckListResourceTest {
 
   @Nested
   public class PostCheckListTests {
+
+    @Test
+    void shouldReturn401WhenNotAuthenticated() {
+      var checklist = new CheckListBuilder().build();
+
+      given()
+        .contentType("application/json")
+        .body(checklist)
+        .when()
+        .post("/api/checklists")
+        .then()
+        .statusCode(401);
+    }
 
     @Test
     @AliceTestUser
@@ -86,24 +99,18 @@ class CheckListResourceTest {
   public class GetCheckListTests {
 
     @Test
+    void shouldReturn401WhenNotAuthenticated() {
+      given()
+        .when()
+        .get("/api/checklists/{id}", UUID.randomUUID().toString())
+        .then()
+        .statusCode(401);
+    }
+
+    @Test
     @AliceTestUser
     void shouldReturn200WhenChecklistExists() {
-      var checklistId = UUID.randomUUID().toString();
-
-      var payload = CheckListBuilder.build(builder -> {
-        builder.id = checklistId;
-        builder.name = "Existing Checklist";
-        builder.description = "This checklist already exists";
-      });
-
-      // create a checklist first
-      given()
-        .contentType("application/json")
-        .body(payload)
-        .when()
-        .post("/api/checklists")
-        .then()
-        .statusCode(201);
+      var checklistId = createChecklist();
 
       given()
         .when()
@@ -132,6 +139,53 @@ class CheckListResourceTest {
         .body("title", equalTo("Resource Not Found"))
         .body("detail", equalTo("Checklist with ID " + nonExistentId + " does not exist"));
     }
+  }
+
+  @Nested
+  public class GetChecklistsTests {
+
+    @Test
+    void shouldReturn401WhenNotAuthenticated() {
+      given()
+        .when()
+        .get("/api/checklists")
+        .then()
+        .statusCode(401);
+    }
+
+    @Test
+    @AliceTestUser
+    void shouldReturn200WithListOfChecklists() {
+      createChecklist();
+
+      given()
+        .when()
+        .get("/api/checklists")
+        .then()
+        .statusCode(200)
+        .body("items", notNullValue())
+        .body("items.size()", greaterThan(0));
+    }
+  }
+
+  private String createChecklist() {
+    var checklistId = UUID.randomUUID().toString();
+
+    var payload = CheckListBuilder.build(builder -> {
+      builder.id = checklistId;
+      builder.name = "Existing Checklist";
+      builder.description = "This checklist already exists";
+    });
+
+    given()
+      .contentType("application/json")
+      .body(payload)
+      .when()
+      .post("/api/checklists")
+      .then()
+      .statusCode(201);
+
+    return checklistId;
   }
 
 }

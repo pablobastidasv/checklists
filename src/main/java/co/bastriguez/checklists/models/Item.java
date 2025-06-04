@@ -1,4 +1,4 @@
-package co.bastriguez.checklists.domain.model;
+package co.bastriguez.checklists.models;
 
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.Entity;
