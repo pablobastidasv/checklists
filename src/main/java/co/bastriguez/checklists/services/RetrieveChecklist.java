@@ -10,8 +10,7 @@ import java.util.UUID;
 public class RetrieveChecklist {
 
   public Checklist retrieve(UUID id) {
-    return Checklist.findByIdOptional(id)
-      .map(Checklist.class::cast)
+    return Checklist.findActiveById(id)
       .orElseThrow(() -> new ChecklistNotFoundException(id));
   }
 

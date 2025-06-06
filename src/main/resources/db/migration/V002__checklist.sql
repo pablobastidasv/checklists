@@ -2,7 +2,8 @@ CREATE TABLE checklists (
     id UUID not null,
     name VARCHAR(255) not null,
     description TEXT not null,
-    owner_id UUID not null
+    owner_id UUID not null,
+    status VARCHAR(20) not null DEFAULT 'ACTIVE'
 );
 
 CREATE TABLE checklist_items (

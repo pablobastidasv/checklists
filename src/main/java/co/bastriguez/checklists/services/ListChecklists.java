@@ -1,5 +1,6 @@
 package co.bastriguez.checklists.services;
 
+import co.bastriguez.checklists.models.Checklist;
 import co.bastriguez.checklists.projections.ChecklistSummary;
 import jakarta.enterprise.context.ApplicationScoped;
 
@@ -12,7 +13,7 @@ public class ListChecklists {
   }
 
   public ListOfChecklists getChecklists() {
-    var checklists = ChecklistSummary.listSummaries().list();
+    var checklists = ChecklistSummary.listSummariesBy(Checklist.Status.ACTIVE).list();
     return new ListOfChecklists(checklists);
   }
 }

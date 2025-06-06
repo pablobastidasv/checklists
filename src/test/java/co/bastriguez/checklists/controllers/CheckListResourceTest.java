@@ -129,8 +129,6 @@ class CheckListResourceTest {
       var nonExistentId = UUID.randomUUID().toString();
 
       given()
-        .filter(new RequestLoggingFilter())
-        .filter(new ResponseLoggingFilter())
         .when()
         .get("/api/checklists/{id}", nonExistentId)
         .then()
@@ -165,6 +163,121 @@ class CheckListResourceTest {
         .statusCode(200)
         .body("items", notNullValue())
         .body("items.size()", greaterThan(0));
+    }
+  }
+
+  @Nested
+  public class DeleteChecklist {
+    @Test
+    void shouldReturn401WhenNotAuthenticated() {
+      given()
+        .when()
+        .delete("/api/checklists/{id}", UUID.randomUUID().toString())
+        .then()
+        .statusCode(401);
+    }
+
+    @Test
+    @AliceTestUser
+    void shouldReturn204WhenChecklistIsDeleted() {
+      var checklistId = createChecklist();
+
+      given()
+        .when()
+        .delete("/api/checklists/{id}", checklistId)
+        .then()
+        .statusCode(204);
+    }
+
+    @Test
+    @AliceTestUser
+    void shouldReturn422WhenIdIsNotUUID() {
+      var invalidId = "not-a-uuid";
+
+      given()
+        .when()
+        .delete("/api/checklists/{id}", invalidId)
+        .then()
+        .statusCode(422)
+        .body("type", equalTo("validation-error"))
+        .body("title", equalTo("Validation Failed"))
+        .body("timestamp", notNullValue())
+        .body("detail", equalTo("Information is missing or invalid"))
+        .body("violations[0].field", equalTo("id"))
+        .body("violations[0].rejectedValue", equalTo(invalidId))
+        .body("violations[0].message", equalTo("must be a valid UUID"));
+    }
+
+    @Test
+    @AliceTestUser
+    void shouldReturn404WhenChecklistDoesNotExist() {
+      var nonExistentId = UUID.randomUUID().toString();
+
+      given()
+        .when()
+        .delete("/api/checklists/{id}", nonExistentId)
+        .then()
+        .statusCode(404)
+        .body("type", equalTo("not-found"))
+        .body("title", equalTo("Resource Not Found"))
+        .body("detail", equalTo("Checklist with ID " + nonExistentId + " does not exist"));
+    }
+
+    @Test
+    @AliceTestUser
+    void shouldReturn404WhenChecklistIsDisabled() {
+      var checklistId = createChecklist();
+
+      given()
+        .when()
+        .delete("/api/checklists/{id}", checklistId)
+        .then()
+        .statusCode(204);
+
+      // Verify that the checklist is disabled
+      given()
+        .when()
+        .get("/api/checklists/{id}", checklistId)
+        .then()
+        .statusCode(404)
+        .body("type", equalTo("not-found"))
+        .body("title", equalTo("Resource Not Found"))
+        .body("detail", equalTo("Checklist with ID " + checklistId + " does not exist"));
+    }
+
+    @Test
+    @AliceTestUser
+    void shouldNotShownTheChecklistInTheListAfterDeletion() {
+      var checklistId = createChecklist();
+
+      // Verify that the checklist is in the list
+      given()
+        .filter(new RequestLoggingFilter())
+        .filter(new ResponseLoggingFilter())
+        .when()
+        .get("/api/checklists")
+        .then()
+        .statusCode(200)
+        .body("items", notNullValue())
+        .body("items.find { it.id == '" + checklistId + "' }", notNullValue());
+
+      // Delete the checklist
+      given()
+        .when()
+        .delete("/api/checklists/{id}", checklistId)
+        .then()
+        .statusCode(204);
+
+      // Verify that the checklist is not in the list
+      given()
+        .filter(new RequestLoggingFilter())
+        .filter(new ResponseLoggingFilter())
+        .when()
+        .get("/api/checklists")
+        .then()
+        .statusCode(200)
+        .body("items", notNullValue())
+        .body("items.find { it.id == '" + checklistId + "' }", nullValue());
     }
   }
 

@@ -13,12 +13,15 @@ public record ChecklistSummary(
   String description,
   Long itemsCount
 ) {
-  public static PanacheQuery<ChecklistSummary> listSummaries() {
+  public static PanacheQuery<ChecklistSummary> listSummariesBy(
+    Checklist.Status status
+  ) {
     return Checklist.find("""
       SELECT c.id, c.name, c.description, COUNT(i)
       FROM Checklist c
       LEFT JOIN c.items i
+      WHERE c.status = ?1
       GROUP BY c.id, c.name, c.description
-      """).project(ChecklistSummary.class);
+      """, status).project(ChecklistSummary.class);
   }
 }
