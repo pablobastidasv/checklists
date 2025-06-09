@@ -3,9 +3,9 @@ import { useAuth } from "../AuthContext"
 const LoginForm = () => {
     const { login } = useAuth()
 
-    const handleSubmit = (event) => {
-        event.preventDefault()
-        const formData = new FormData(event.target)
+    const handleSubmit = (domainEvent) => {
+        domainEvent.preventDefault()
+        const formData = new FormData(domainEvent.target)
         const user = {
             email: formData.get('username'),
             password: formData.get('password'),

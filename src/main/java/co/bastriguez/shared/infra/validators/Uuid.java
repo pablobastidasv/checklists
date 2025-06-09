@@ -1,4 +1,4 @@
-package co.bastriguez.shared.validators;
+package co.bastriguez.shared.infra.validators;
 
 import jakarta.validation.Constraint;
 import jakarta.validation.Payload;

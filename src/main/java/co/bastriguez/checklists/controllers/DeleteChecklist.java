@@ -1,7 +1,7 @@
 package co.bastriguez.checklists.controllers;
 
 import co.bastriguez.checklists.services.DisabledChecklist;
-import co.bastriguez.shared.validators.Uuid;
+import co.bastriguez.shared.infra.validators.Uuid;
 import io.quarkus.security.Authenticated;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
@@ -13,10 +13,7 @@ import org.jboss.resteasy.reactive.RestResponse;
 
 import java.util.UUID;
 
-@ApplicationScoped
 @Path("/checklists")
-@Produces(MediaType.APPLICATION_JSON)
-@Consumes(MediaType.APPLICATION_JSON)
 @Transactional
 public class DeleteChecklist {
 

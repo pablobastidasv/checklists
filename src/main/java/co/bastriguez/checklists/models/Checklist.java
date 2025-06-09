@@ -1,5 +1,6 @@
 package co.bastriguez.checklists.models;
 
+import co.bastriguez.checklists.listeners.ChecklistEntityListener;
 import co.bastriguez.security.domain.model.User;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
@@ -12,6 +13,7 @@ import static co.bastriguez.checklists.models.Checklist.Status.ACTIVE;
 
 @Entity
 @Table(name = "checklists")
+@EntityListeners(ChecklistEntityListener.class)
 public final class Checklist extends PanacheEntityBase {
   @Id
   public UUID id;

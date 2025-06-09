@@ -10,7 +10,6 @@ import jakarta.ws.rs.PathParam;
 
 import java.util.UUID;
 
-@ApplicationScoped
 @Path("checklists")
 public class GetChecklist {
 

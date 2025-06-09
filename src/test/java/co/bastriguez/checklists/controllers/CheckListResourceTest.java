@@ -1,21 +1,38 @@
 package co.bastriguez.checklists.controllers;
 
 import co.bastriguez.security.AliceTestUser;
+import io.quarkus.test.common.http.TestHTTPEndpoint;
+import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
 import jakarta.json.Json;
+import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
 
+import java.net.URI;
+import java.net.http.HttpClient;
+import java.net.http.HttpRequest;
+import java.net.http.HttpResponse;
 import java.util.UUID;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 import static io.restassured.RestAssured.given;
+import static org.awaitility.Awaitility.await;
 import static org.hamcrest.Matchers.*;
+import static org.junit.jupiter.api.Assertions.fail;
 
 @QuarkusTest
 class CheckListResourceTest {
+
+  private static final Logger logger = Logger.getLogger(CheckListResourceTest.class);
+
+  @TestHTTPEndpoint(GetChecklistsEvents.class)
+  @TestHTTPResource
+  URI sseEventsUri;
 
   private static class CheckListBuilder {
 
@@ -279,6 +296,60 @@ class CheckListResourceTest {
         .body("items", notNullValue())
         .body("items.find { it.id == '" + checklistId + "' }", nullValue());
     }
+  }
+
+  @Nested
+  public class StreamChecklistEvents {
+
+
+    @Test
+    void shouldReturn401WhenNotAuthenticated() {
+      given()
+        .when()
+        .get("/api/checklists/events")
+        .then()
+        .statusCode(401);
+    }
+
+    @Test
+    @AliceTestUser
+    void shouldFiredEventsWhenChecklistCreated() {
+      var eventReceived = new AtomicBoolean(false);
+
+      var client = HttpClient.newHttpClient();
+      var request = HttpRequest.newBuilder()
+        .uri(sseEventsUri)
+        .header("Accept", "text/event-stream")
+        .build();
+
+      var future = client.sendAsync(request, HttpResponse.BodyHandlers.ofLines())
+        .thenAccept(res -> {
+          res.body().forEach(l -> {
+            if (l.contains("CHECKLIST_CREATED")) {
+              eventReceived.set(true);
+            }
+          });
+        }).exceptionally(t -> {
+          logger.error("Error in SSE stream", t);
+          return null;
+        })
+      ;
+
+      createChecklist();
+
+      try {
+        await().atMost(1, TimeUnit.SECONDS)
+          .pollInterval(200, TimeUnit.MILLISECONDS)
+          .until(eventReceived::get)
+        ;
+      } catch (Exception e) {
+        fail("Event was not received within the timeout period", e);
+      } finally {
+        future.cancel(true);
+        client.close();
+      }
+    }
+
   }
 
   private String createChecklist() {

@@ -12,7 +12,6 @@ import jakarta.ws.rs.Path;
 import jakarta.ws.rs.Produces;
 
 @Path("/checklists")
-@ApplicationScoped
 @Consumes("application/json")
 @Produces("application/json")
 public class GetChecklists {
