@@ -1,6 +1,6 @@
-package co.bastriguez.checklists.models;
+package co.bastriguez.templates.models;
 
-import co.bastriguez.checklists.listeners.ChecklistEntityListener;
+import co.bastriguez.templates.listeners.TemplateEntityListener;
 import co.bastriguez.security.domain.model.User;
 import io.quarkus.hibernate.orm.panache.PanacheEntityBase;
 import jakarta.persistence.*;
@@ -9,19 +9,19 @@ import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
-import static co.bastriguez.checklists.models.Checklist.Status.ACTIVE;
+import static co.bastriguez.templates.models.Template.Status.ACTIVE;
 
 @Entity
-@Table(name = "checklists")
-@EntityListeners(ChecklistEntityListener.class)
-public final class Checklist extends PanacheEntityBase {
+@Table(name = "templates")
+@EntityListeners(TemplateEntityListener.class)
+public final class Template extends PanacheEntityBase {
   @Id
   public UUID id;
   public String name;
   public String description;
   @ManyToOne
   public User owner;
-  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "checklist")
+  @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true, mappedBy = "template")
   public List<Item> items;
   @Enumerated(EnumType.STRING)
   public Status status = ACTIVE;
@@ -35,7 +35,7 @@ public final class Checklist extends PanacheEntityBase {
     status = Status.DISABLED;
   }
 
-  public static Optional<Checklist> findActiveById(UUID id) {
+  public static Optional<Template> findActiveById(UUID id) {
     return find("id = ?1 AND status = ?2", id, ACTIVE).firstResultOptional();
   }
 }

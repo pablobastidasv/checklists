@@ -19,9 +19,9 @@ class GreetingResourceTest {
 
     @Test
     @TestSecurity(user = "alice")
-    void checklist() {
+    void template() {
         given()
-                .when().get("api/checklists")
+                .when().get("api/templates")
                 .then()
                 .statusCode(200)
                 .body("[0].status", is(true));

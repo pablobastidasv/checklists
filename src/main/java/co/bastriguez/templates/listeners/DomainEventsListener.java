@@ -1,7 +1,7 @@
-package co.bastriguez.checklists.listeners;
+package co.bastriguez.templates.listeners;
 
-import co.bastriguez.checklists.models.DomainEvent;
-import co.bastriguez.checklists.services.EventsService;
+import co.bastriguez.templates.models.DomainEvent;
+import co.bastriguez.templates.services.EventsService;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.enterprise.event.TransactionPhase;
@@ -16,8 +16,8 @@ public class DomainEventsListener {
   @Inject
   EventsService eventsService;
 
-  public void listenChecklistEvents(@Observes(during = TransactionPhase.AFTER_SUCCESS) DomainEvent<?> checklistEvent) {
-    eventsService.fire(checklistEvent);
+  public void listenTemplateEvents(@Observes(during = TransactionPhase.AFTER_SUCCESS) DomainEvent<?> templateEvent) {
+    eventsService.fire(templateEvent);
   }
 
 }

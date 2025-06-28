@@ -1,4 +1,4 @@
-package co.bastriguez.checklists.controllers;
+package co.bastriguez.templates.controllers;
 
 import co.bastriguez.security.AliceTestUser;
 import io.quarkus.test.common.http.TestHTTPEndpoint;
@@ -26,19 +26,19 @@ import static org.hamcrest.Matchers.*;
 import static org.junit.jupiter.api.Assertions.fail;
 
 @QuarkusTest
-class CheckListResourceTest {
+class TemplateResourcesTest {
 
-  private static final Logger logger = Logger.getLogger(CheckListResourceTest.class);
+  private static final Logger logger = Logger.getLogger(TemplateResourcesTest.class);
 
-  @TestHTTPEndpoint(GetChecklistsEvents.class)
+  @TestHTTPEndpoint(GetTemplatesEvents.class)
   @TestHTTPResource
   URI sseEventsUri;
 
-  private static class CheckListBuilder {
+  private static class TemplateBuilder {
 
     String id = UUID.randomUUID().toString();
-    String name = "Default Checklist";
-    String description = "This is a default checklist";
+    String name = "Default Template";
+    String description = "This is a default template";
 
     public String build() {
       return Json.createObjectBuilder()
@@ -49,25 +49,25 @@ class CheckListResourceTest {
     }
 
 
-    public static String build(Consumer<CheckListBuilder> builder) {
-      var jsonBuilder = new CheckListBuilder();
+    public static String build(Consumer<TemplateBuilder> builder) {
+      var jsonBuilder = new TemplateBuilder();
       builder.accept(jsonBuilder);
       return jsonBuilder.build();
     }
   }
 
   @Nested
-  public class PostCheckListTests {
+  public class PostTemplateTests {
 
     @Test
     void shouldReturn401WhenNotAuthenticated() {
-      var checklist = new CheckListBuilder().build();
+      var template = new TemplateBuilder().build();
 
       given()
         .contentType("application/json")
-        .body(checklist)
+        .body(template)
         .when()
-        .post("/api/checklists")
+        .post("/api/templates")
         .then()
         .statusCode(401);
     }
@@ -75,13 +75,13 @@ class CheckListResourceTest {
     @Test
     @AliceTestUser
     void shouldReturn201WhenDataIsValid() {
-      var checklist = new CheckListBuilder().build();
+      var template = new TemplateBuilder().build();
 
       given()
         .contentType("application/json")
-        .body(checklist)
+        .body(template)
         .when()
-        .post("/api/checklists")
+        .post("/api/templates")
         .then()
         .statusCode(201);
     }
@@ -89,15 +89,15 @@ class CheckListResourceTest {
     @Test
     @AliceTestUser
     void shouldReturn400WhenDataIsInvalid() {
-      var invalidChecklist = CheckListBuilder.build(builder -> {
+      var invalidTemplate = TemplateBuilder.build(builder -> {
         builder.name = ""; // Invalid name
       });
 
       given()
         .contentType("application/json")
-        .body(invalidChecklist)
+        .body(invalidTemplate)
         .when()
-        .post("/api/checklists")
+        .post("/api/templates")
         .then()
         .statusCode(422)
         .body("type", equalTo("validation-error"))
@@ -113,69 +113,69 @@ class CheckListResourceTest {
   }
 
   @Nested
-  public class GetCheckListTests {
+  public class GetTemplateTests {
 
     @Test
     void shouldReturn401WhenNotAuthenticated() {
       given()
         .when()
-        .get("/api/checklists/{id}", UUID.randomUUID().toString())
+        .get("/api/templates/{id}", UUID.randomUUID().toString())
         .then()
         .statusCode(401);
     }
 
     @Test
     @AliceTestUser
-    void shouldReturn200WhenChecklistExists() {
-      var checklistId = createChecklist();
+    void shouldReturn200WhenTemplateExists() {
+      var templateId = createTemplate();
 
       given()
         .when()
-        .get("/api/checklists/{id}", checklistId)
+        .get("/api/templates/{id}", templateId)
         .then()
         .statusCode(200)
-        .body("id", equalTo(checklistId))
-        .body("name", equalTo("Existing Checklist"))
-        .body("description", equalTo("This checklist already exists"))
+        .body("id", equalTo(templateId))
+        .body("name", equalTo("Existing Template"))
+        .body("description", equalTo("This template already exists"))
         .body("ownerId", equalTo(AliceTestUser.SUB));
     }
 
     @Test
     @AliceTestUser
-    void shouldReturn404WhenChecklistDoesNotExist() {
+    void shouldReturn404WhenTemplateDoesNotExist() {
       var nonExistentId = UUID.randomUUID().toString();
 
       given()
         .when()
-        .get("/api/checklists/{id}", nonExistentId)
+        .get("/api/templates/{id}", nonExistentId)
         .then()
         .statusCode(404)
         .body("type", equalTo("not-found"))
         .body("title", equalTo("Resource Not Found"))
-        .body("detail", equalTo("Checklist with ID " + nonExistentId + " does not exist"));
+        .body("detail", equalTo("Template with ID " + nonExistentId + " does not exist"));
     }
   }
 
   @Nested
-  public class GetChecklistsTests {
+  public class GetTemplatesTests {
 
     @Test
     void shouldReturn401WhenNotAuthenticated() {
       given()
         .when()
-        .get("/api/checklists")
+        .get("/api/templates")
         .then()
         .statusCode(401);
     }
 
     @Test
     @AliceTestUser
-    void shouldReturn200WithListOfChecklists() {
-      createChecklist();
+    void shouldReturn200WithListOfTemplates() {
+      createTemplate();
 
       given()
         .when()
-        .get("/api/checklists")
+        .get("/api/templates")
         .then()
         .statusCode(200)
         .body("items", notNullValue())
@@ -184,24 +184,24 @@ class CheckListResourceTest {
   }
 
   @Nested
-  public class DeleteChecklist {
+  public class DeleteTemplates {
     @Test
     void shouldReturn401WhenNotAuthenticated() {
       given()
         .when()
-        .delete("/api/checklists/{id}", UUID.randomUUID().toString())
+        .delete("/api/templates/{id}", UUID.randomUUID().toString())
         .then()
         .statusCode(401);
     }
 
     @Test
     @AliceTestUser
-    void shouldReturn204WhenChecklistIsDeleted() {
-      var checklistId = createChecklist();
+    void shouldReturn204WhenTemplateIsDeleted() {
+      var templateId = createTemplate();
 
       given()
         .when()
-        .delete("/api/checklists/{id}", checklistId)
+        .delete("/api/templates/{id}", templateId)
         .then()
         .statusCode(204);
     }
@@ -213,7 +213,7 @@ class CheckListResourceTest {
 
       given()
         .when()
-        .delete("/api/checklists/{id}", invalidId)
+        .delete("/api/templates/{id}", invalidId)
         .then()
         .statusCode(422)
         .body("type", equalTo("validation-error"))
@@ -227,93 +227,93 @@ class CheckListResourceTest {
 
     @Test
     @AliceTestUser
-    void shouldReturn404WhenChecklistDoesNotExist() {
+    void shouldReturn404WhenTemplateDoesNotExist() {
       var nonExistentId = UUID.randomUUID().toString();
 
       given()
         .when()
-        .delete("/api/checklists/{id}", nonExistentId)
+        .delete("/api/templates/{id}", nonExistentId)
         .then()
         .statusCode(404)
         .body("type", equalTo("not-found"))
         .body("title", equalTo("Resource Not Found"))
-        .body("detail", equalTo("Checklist with ID " + nonExistentId + " does not exist"));
+        .body("detail", equalTo("Template with ID " + nonExistentId + " does not exist"));
     }
 
     @Test
     @AliceTestUser
-    void shouldReturn404WhenChecklistIsDisabled() {
-      var checklistId = createChecklist();
+    void shouldReturn404WhenTemplateIsDisabled() {
+      var templateId = createTemplate();
 
       given()
         .when()
-        .delete("/api/checklists/{id}", checklistId)
+        .delete("/api/templates/{id}", templateId)
         .then()
         .statusCode(204);
 
-      // Verify that the checklist is disabled
+      // Verify that the template is disabled
       given()
         .when()
-        .get("/api/checklists/{id}", checklistId)
+        .get("/api/templates/{id}", templateId)
         .then()
         .statusCode(404)
         .body("type", equalTo("not-found"))
         .body("title", equalTo("Resource Not Found"))
-        .body("detail", equalTo("Checklist with ID " + checklistId + " does not exist"));
+        .body("detail", equalTo("Template with ID " + templateId + " does not exist"));
     }
 
     @Test
     @AliceTestUser
-    void shouldNotShownTheChecklistInTheListAfterDeletion() {
-      var checklistId = createChecklist();
+    void shouldNotShownTheTemplateInTheListAfterDeletion() {
+      var templateId = createTemplate();
 
-      // Verify that the checklist is in the list
+      // Verify that the template is in the list
       given()
         .filter(new RequestLoggingFilter())
         .filter(new ResponseLoggingFilter())
         .when()
-        .get("/api/checklists")
+        .get("/api/templates")
         .then()
         .statusCode(200)
         .body("items", notNullValue())
-        .body("items.find { it.id == '" + checklistId + "' }", notNullValue());
+        .body("items.find { it.id == '" + templateId + "' }", notNullValue());
 
-      // Delete the checklist
+      // Delete the template
       given()
         .when()
-        .delete("/api/checklists/{id}", checklistId)
+        .delete("/api/templates/{id}", templateId)
         .then()
         .statusCode(204);
 
-      // Verify that the checklist is not in the list
+      // Verify that the template is not in the list
       given()
         .filter(new RequestLoggingFilter())
         .filter(new ResponseLoggingFilter())
         .when()
-        .get("/api/checklists")
+        .get("/api/templates")
         .then()
         .statusCode(200)
         .body("items", notNullValue())
-        .body("items.find { it.id == '" + checklistId + "' }", nullValue());
+        .body("items.find { it.id == '" + templateId + "' }", nullValue());
     }
   }
 
   @Nested
-  public class StreamChecklistEvents {
+  public class StreamTemplateEvents {
 
 
     @Test
     void shouldReturn401WhenNotAuthenticated() {
       given()
         .when()
-        .get("/api/checklists/events")
+        .get("/api/templates/events")
         .then()
         .statusCode(401);
     }
 
     @Test
     @AliceTestUser
-    void shouldFiredEventsWhenChecklistCreated() {
+    void shouldFiredEventsWhenTemplateCreated() {
       var eventReceived = new AtomicBoolean(false);
 
       var client = HttpClient.newHttpClient();
@@ -323,19 +323,16 @@ class CheckListResourceTest {
         .build();
 
       var future = client.sendAsync(request, HttpResponse.BodyHandlers.ofLines())
-        .thenAccept(res -> {
-          res.body().forEach(l -> {
-            if (l.contains("CHECKLIST_CREATED")) {
-              eventReceived.set(true);
-            }
-          });
-        }).exceptionally(t -> {
+        .thenAccept(res -> res.body().forEach(l -> {
+          if (l.contains("TEMPLATE_CREATED")) {
+            eventReceived.set(true);
+          }
+        })).exceptionally(t -> {
           logger.error("Error in SSE stream", t);
           return null;
-        })
-      ;
+        });
 
-      createChecklist();
+      createTemplate();
 
       try {
         await().atMost(1, TimeUnit.SECONDS)
@@ -352,24 +349,24 @@ class CheckListResourceTest {
 
   }
 
-  private String createChecklist() {
-    var checklistId = UUID.randomUUID().toString();
+  private String createTemplate() {
+    var templateId = UUID.randomUUID().toString();
 
-    var payload = CheckListBuilder.build(builder -> {
-      builder.id = checklistId;
-      builder.name = "Existing Checklist";
-      builder.description = "This checklist already exists";
+    var payload = TemplateBuilder.build(builder -> {
+      builder.id = templateId;
+      builder.name = "Existing Template";
+      builder.description = "This template already exists";
     });
 
     given()
       .contentType("application/json")
       .body(payload)
       .when()
-      .post("/api/checklists")
+      .post("/api/templates")
       .then()
       .statusCode(201);
 
-    return checklistId;
+    return templateId;
   }
 
 }

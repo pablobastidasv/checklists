@@ -11,20 +11,20 @@ import java.util.List;
 @Produces(MediaType.APPLICATION_JSON)
 public class GreetingResource {
 
-  public record Checklist(boolean status, String description) {
+  public record Template(boolean status, String description) {
   }
 
-  private final List<Checklist> checklists = List.of(
-    new Checklist(true, "Checklist 1"),
-    new Checklist(false, "Checklist 2"),
-    new Checklist(true, "Checklist 3")
+  private final List<Template> templates = List.of(
+    new Template(true, "Template 1"),
+    new Template(false, "Template 2"),
+    new Template(true, "Template 3")
   );
 
-  @Path("/checklists")
+  @Path("/templates")
   @GET
   @Produces(MediaType.APPLICATION_JSON)
-  public List<Checklist> getChecklists() {
-    return checklists;
+  public List<Template> getTemplates() {
+    return templates;
   }
 
   @Path("/userinfo")

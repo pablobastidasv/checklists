@@ -1,6 +1,6 @@
-package co.bastriguez.checklists.controllers;
+package co.bastriguez.templates.controllers;
 
-import co.bastriguez.checklists.services.CreateChecklist;
+import co.bastriguez.templates.services.CreateTemplate;
 import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
@@ -15,13 +15,13 @@ import org.jboss.resteasy.reactive.RestResponse;
 
 import java.util.UUID;
 
-@Path("checklists")
+@Path("templates")
 @Consumes(MediaType.APPLICATION_JSON)
 @Authenticated
-public class PostChecklist {
+public class PostTemplates {
 
   @Inject
-  CreateChecklist createChecklist;
+  CreateTemplate createTemplate;
 
   @Inject
   JsonWebToken identity;
@@ -36,9 +36,9 @@ public class PostChecklist {
 
   @POST
   @ResponseStatus(RestResponse.StatusCode.CREATED)
-  public void postChecklist(@Valid Payload input) {
+  public void postTemplate(@Valid Payload input) {
     var ownerId = UUID.fromString(identity.getSubject());
-    createChecklist.create(input.id(), input.name(), input.description(), ownerId);
+    createTemplate.create(input.id(), input.name(), input.description(), ownerId);
   }
 
 }

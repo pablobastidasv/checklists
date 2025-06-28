@@ -1,6 +1,6 @@
-package co.bastriguez.checklists.services;
+package co.bastriguez.templates.services;
 
-import co.bastriguez.checklists.models.DomainEvent;
+import co.bastriguez.templates.models.DomainEvent;
 import io.smallrye.mutiny.Multi;
 import io.smallrye.mutiny.operators.multi.processors.BroadcastProcessor;
 import jakarta.enterprise.context.ApplicationScoped;

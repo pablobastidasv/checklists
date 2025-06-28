@@ -36,7 +36,7 @@ public class Login {
 
     var tokenClaims = new TokenGenerator.Token(
       user.id.toString(),
-      String.valueOf(System.currentTimeMillis() / 1000),
+      String.valueOf(System.currentTimeMillis() / 1000),// TODO: use clock
       user.preferredName,
       email,
       user.roles.stream().map(role -> role.name).collect(Collectors.toSet())
