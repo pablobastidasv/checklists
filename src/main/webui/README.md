@@ -52,3 +52,10 @@ export default tseslint.config({
   },
 })
 ```
+
+## Used libraries
+
+- [react-router](https://reactrouter.com/)
+- [tailwindcss](https://tailwindcss.com/)
+- [daisyUI](https://daisyui.com/)
+- [react-icons](https://react-icons.github.io/react-icons/)

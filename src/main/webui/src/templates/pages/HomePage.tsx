@@ -1,11 +1,18 @@
-import List from "../components/List";
+import AppBar from "../../molecules/AppBar";
+import Menu from "../components/Menu";
+import Templates from "../components/Templates";
+import Welcome from "../components/Welcome";
 
 const HomePage = () => {
   return (
-    <div>
-      <h1>Home Page</h1>
-      <List />
-    </div>
+    <>
+      <AppBar />
+      <Welcome />
+      <main className="container mx-auto">
+        <Menu />
+        <Templates />
+      </main>
+    </>
   );
 };
 

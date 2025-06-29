@@ -1,9 +1,9 @@
-import MainLayout from "./layout/MainLayout";
+import ProtectedRoute from "../auth/ProtectedRoute";
 import HomePage from "./pages/HomePage";
 
 const templatesRoutes = [
   {
-    element: <MainLayout />,
+    element: <ProtectedRoute />,
     children: [
       {
         path: '',

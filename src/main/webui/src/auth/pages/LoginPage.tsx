@@ -2,6 +2,7 @@ import { useNavigate } from "react-router";
 import { useAuth } from "../AuthContext";
 import LoginForm from "../component/LoginForm";
 import { useState } from "react";
+import Alert from "../../atoms/Alert";
 
 const LoginPage = () => {
   const { login } = useAuth();
@@ -32,15 +33,15 @@ const LoginPage = () => {
   }
 
   return (
-    <>
+    <div className="flex flex-col items-center justify-center h-screen">
       <div>
         <h1>Login Page</h1>
       </div>
 
-      {error && <div>{error}</div>}
+      {error && <Alert message={error} />}
 
       <LoginForm onSubmit={onSubmit} />
-    </>
+    </div>
 
   );
 };

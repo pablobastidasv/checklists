@@ -1,43 +1,25 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
 import './App.css'
-import { NavLink } from 'react-router'
+import { Navigate, useNavigate } from 'react-router'
 import { useAuth } from './auth/AuthContext'
+import Button from './atoms/Button';
 
 function App() {
-  const [count, setCount] = useState(0)
   const { isAuthenticated, logout } = useAuth();
+  const navigate = useNavigate();
+
+  if (isAuthenticated) {
+    return <Navigate to="/templates" replace />;
+  }
 
   return (
     <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <div>
-        {isAuthenticated ? (
-          <button onClick={logout}>Logout</button>
-        ) : (
-          <NavLink to="/login">Login</NavLink>
-        )}
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
+      {isAuthenticated ? (
+        <Button onClick={logout}>Logout</Button>
+      ) : (
+        <>
+          <button className="btn" onClick={() => navigate('/login')}>Login</button>
+        </>
+      )}
     </>
   )
 }
