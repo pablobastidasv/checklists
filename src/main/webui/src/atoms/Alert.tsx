@@ -1,16 +1,68 @@
+import { BiCheckCircle, BiError, BiErrorCircle, BiInfoCircle } from "react-icons/bi";
+
 interface AlertProps {
-  message: string;
+  children: React.ReactNode;
+  type?: 'error' | 'warning' | 'info' | 'success';
 }
 
-const Alert = ({ message }: AlertProps) => {
+const NoStyledAlert = ({ children }: AlertProps) => {
   return (
-    <div role="alert" className="alert alert-error">
-      <svg xmlns="http://www.w3.org/2000/svg" className="h-6 w-6 shrink-0 stroke-current" fill="none" viewBox="0 0 24 24">
-        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 14l2-2m0 0l2-2m-2 2l-2-2m2 2l2 2m7-2a9 9 0 11-18 0 9 9 0 0118 0z" />
-      </svg>
-      <span>{message}</span>
+    <div role="alert" className="alert">
+      <BiInfoCircle />
+      {children}
     </div>
   );
+};
+
+const AlertInfo = ({ children }: AlertProps) => {
+  return (
+    <div role="alert" className="alert alert-info">
+      <BiInfoCircle />
+      {children}
+    </div>
+  );
+};
+
+const AlertWarning = ({ children }: AlertProps) => {
+  return (
+    <div role="alert" className="alert alert-warning">
+      <BiError />
+      {children}
+    </div>
+  );
+};
+
+const AlertSuccess = ({ children }: AlertProps) => {
+  return (
+    <div role="alert" className="alert alert-success">
+      <BiCheckCircle />
+      {children}
+    </div>
+  );
+};
+
+const AlertError = ({ children }: AlertProps) => {
+  return (
+    <div role="alert" className="alert alert-error">
+      <BiErrorCircle />
+      {children}
+    </div>
+  );
+};
+
+const Alert = ({ children, type }: AlertProps) => {
+  switch (type) {
+    case 'error':
+      return <AlertError>{children}</AlertError>;
+    case 'warning':
+      return <AlertWarning>{children}</AlertWarning>;
+    case 'info':
+      return <AlertInfo>{children}</AlertInfo>;
+    case 'success':
+      return <AlertSuccess>{children}</AlertSuccess>;
+    default:
+      return <NoStyledAlert>{children}</NoStyledAlert>;
+  }
 };
 
 export default Alert;

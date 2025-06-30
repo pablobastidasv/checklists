@@ -38,7 +38,7 @@ const LoginPage = () => {
         <h1>Login Page</h1>
       </div>
 
-      {error && <Alert message={error} />}
+      {error && <Alert type="error">{error}</Alert>}
 
       <LoginForm onSubmit={onSubmit} />
     </div>

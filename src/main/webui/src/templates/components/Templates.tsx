@@ -2,22 +2,41 @@ import { useEffect, useState } from "react";
 import getTemplates from "../api/GetTemplates";
 import TemplateOverview from "./TemplateOverview";
 import type { Template } from "../models/Template";
+import Alert from "../../atoms/Alert";
+import Spinner from "../../atoms/Spinner";
 
 const Templates = () => {
   const [templates, setTemplates] = useState<Template[]>([]);
+  const [error, setError] = useState<string | null>(null);
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (templates.length !== 0) {
       return;
     }
+    setLoading(true);
 
     const fetchTemplates = async () => {
-      const templates = await getTemplates();
-      setTemplates(templates);
+      const { data, error } = await getTemplates();
+      setTemplates(data);
+      setError(error);
+      setLoading(false);
     };
 
     fetchTemplates();
   }, []);
+
+  if (loading) {
+    return <Spinner />;
+  }
+
+  if (error) {
+    return <Alert type="error">{error}</Alert>;
+  }
+
+  if (!templates.length) {
+    return <Alert>No templates found</Alert>;
+  }
 
   return (
     <>

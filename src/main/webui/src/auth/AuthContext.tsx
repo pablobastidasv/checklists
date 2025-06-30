@@ -45,7 +45,6 @@ export const AuthProvider: React.FC<AuthProviderProps> = ({ children }) => {
     const token = localStorage.getItem("token");
     if (token) {
       _setUserFrom(token);
-      // TODO: token to authorization header for axios requests?
     }
     setLoading(false);
   }, []);
