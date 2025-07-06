@@ -5,6 +5,7 @@ import io.quarkus.security.Authenticated;
 import jakarta.inject.Inject;
 import jakarta.validation.Valid;
 import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 import jakarta.ws.rs.Consumes;
 import jakarta.ws.rs.POST;
 import jakarta.ws.rs.Path;
@@ -27,9 +28,11 @@ public class PostTemplates {
   JsonWebToken identity;
 
   public record Payload(
+    @NotNull
     UUID id,
     @NotBlank
     String name,
+    @NotBlank
     String description
   ) {
   }

@@ -6,10 +6,14 @@ import io.quarkus.test.common.http.TestHTTPResource;
 import io.quarkus.test.junit.QuarkusTest;
 import io.restassured.filter.log.RequestLoggingFilter;
 import io.restassured.filter.log.ResponseLoggingFilter;
+import io.restassured.response.ValidatableResponse;
 import jakarta.json.Json;
 import org.jboss.logging.Logger;
 import org.junit.jupiter.api.Nested;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.params.ParameterizedTest;
+import org.junit.jupiter.params.provider.Arguments;
+import org.junit.jupiter.params.provider.MethodSource;
 
 import java.net.URI;
 import java.net.http.HttpClient;
@@ -19,6 +23,7 @@ import java.util.UUID;
 import java.util.concurrent.TimeUnit;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
+import java.util.stream.Stream;
 
 import static io.restassured.RestAssured.given;
 import static org.awaitility.Awaitility.await;
@@ -36,32 +41,83 @@ class TemplateResourcesTest {
 
   private static class TemplateBuilder {
 
-    String id = UUID.randomUUID().toString();
-    String name = "Default Template";
-    String description = "This is a default template";
+    private String id;
+    private String name;
+    private String description;
 
-    public String build() {
-      return Json.createObjectBuilder()
-        .add("id", id)
-        .add("name", name)
-        .add("description", description)
-        .build().toString();
+    private TemplateBuilder() {
+      id = UUID.randomUUID().toString();
+      name = "Default Template";
+      description = "This is a default template";
     }
 
+    private String toRequest() {
+      var builder = Json.createObjectBuilder();
+      if (id != null) builder.add("id", id);
+      if (name != null) builder.add("name", name);
+      if (description != null) builder.add("description", description);
+      return builder.build().toString();
+    }
+
+    public static String build() {
+      return build(null);
+    }
 
     public static String build(Consumer<TemplateBuilder> builder) {
       var jsonBuilder = new TemplateBuilder();
-      builder.accept(jsonBuilder);
-      return jsonBuilder.build();
+      if (builder != null) {
+        builder.accept(jsonBuilder);
+      }
+      return jsonBuilder.toRequest();
     }
   }
 
   @Nested
   public class PostTemplateTests {
 
+    @FunctionalInterface
+    public interface ResponseValidator {
+      void validate(ValidatableResponse response);
+    }
+
+    public static Stream<Arguments> invalidTemplatesProvider() {
+      return Stream.of(
+        Arguments.of(
+          TemplateBuilder.build(builder -> builder.id = null),
+          (ResponseValidator) response -> response.body("violations[0].field", equalTo("id"))
+            .body("violations[0].rejectedValue", nullValue())
+            .body("violations[0].message", equalTo("must not be null"))
+        ),
+        Arguments.of(
+          TemplateBuilder.build(builder -> builder.name = ""),
+          (ResponseValidator) response -> response.body("violations[0].field", equalTo("name"))
+            .body("violations[0].rejectedValue", equalTo(""))
+            .body("violations[0].message", equalTo("must not be blank"))
+        ),
+        Arguments.of(
+          TemplateBuilder.build(builder -> builder.name = null),
+          (ResponseValidator) response -> response.body("violations[0].field", equalTo("name"))
+            .body("violations[0].rejectedValue", nullValue())
+            .body("violations[0].message", equalTo("must not be blank"))
+        ),
+        Arguments.of(
+          TemplateBuilder.build(builder -> builder.description = ""),
+          (ResponseValidator) response -> response.body("violations[0].field", equalTo("description"))
+            .body("violations[0].rejectedValue", equalTo(""))
+            .body("violations[0].message", equalTo("must not be blank"))
+        ),
+        Arguments.of(
+          TemplateBuilder.build(builder -> builder.description = null),
+          (ResponseValidator) response -> response.body("violations[0].field", equalTo("description"))
+            .body("violations[0].rejectedValue", nullValue())
+            .body("violations[0].message", equalTo("must not be blank"))
+        )
+      );
+    }
+
     @Test
     void shouldReturn401WhenNotAuthenticated() {
-      var template = new TemplateBuilder().build();
+      var template = TemplateBuilder.build();
 
       given()
         .contentType("application/json")
@@ -75,7 +131,7 @@ class TemplateResourcesTest {
     @Test
     @AliceTestUser
     void shouldReturn201WhenDataIsValid() {
-      var template = new TemplateBuilder().build();
+      var template = TemplateBuilder.build();
 
       given()
         .contentType("application/json")
@@ -86,14 +142,11 @@ class TemplateResourcesTest {
         .statusCode(201);
     }
 
-    @Test
     @AliceTestUser
-    void shouldReturn400WhenDataIsInvalid() {
-      var invalidTemplate = TemplateBuilder.build(builder -> {
-        builder.name = ""; // Invalid name
-      });
-
-      given()
+    @ParameterizedTest
+    @MethodSource("invalidTemplatesProvider")
+    void shouldReturn422WhenDataIsInvalid(String invalidTemplate, ResponseValidator validator) {
+      var validatableResponse = given()
         .contentType("application/json")
         .body(invalidTemplate)
         .when()
@@ -103,12 +156,11 @@ class TemplateResourcesTest {
         .body("type", equalTo("validation-error"))
         .body("title", equalTo("Validation Failed"))
         .body("timestamp", notNullValue())
-        .body("detail", equalTo("Information is missing or invalid"))
-        .body("violations[0].field", equalTo("name"))
-        .body("violations[0].rejectedValue", equalTo(""))
-        .body("violations[0].message", equalTo("must not be blank"))
-      ;
+        .body("detail", equalTo("Information is missing or invalid"));
+
+      validator.validate(validatableResponse);
     }
+
 
   }
 

@@ -9,26 +9,11 @@ import jakarta.ws.rs.ext.Provider;
 import org.jboss.logging.Logger;
 
 import java.util.Iterator;
-import java.util.stream.StreamSupport;
 
 @Provider
 public class ConstraintViolationMapper implements ExceptionMapper<ConstraintViolationException> {
 
   private static final Logger logger = Logger.getLogger(ConstraintViolationMapper.class);
-
-  private static long defineSkip(long size) {
-    logger.debug("Defining how many elements to skip in the path with size: " + size);
-    return size == 2 ? 1 : 2;
-  }
-
-  private static long count(Iterator<?> iterator) {
-    long count = 0;
-    while (iterator.hasNext()) {
-      iterator.next();
-      count++;
-    }
-    return count;
-  }
 
   private static String propertyName(Path path) {
     logger.debug("Path to constraint violation field " + path);

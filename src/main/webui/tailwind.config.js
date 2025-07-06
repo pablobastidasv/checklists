@@ -1,7 +1,7 @@
 {
   safelist: [
     {
-      pattern: /btn-(primary|secondary|accent|ghost|link|info|success|warning|error)/,
+      pattern: /btn-(neutral|primary|secondary|accent|info|success|warning|error|ghost|link)/,
     },
   ]
 }
