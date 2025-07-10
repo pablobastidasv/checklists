@@ -381,6 +381,7 @@ class TemplateResourcesTest {
           }
         })).exceptionally(t -> {
           logger.error("Error in SSE stream", t);
+          fail(t.getMessage());
           return null;
         });
 
