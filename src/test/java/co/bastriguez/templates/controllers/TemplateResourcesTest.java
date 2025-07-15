@@ -377,6 +377,7 @@ class TemplateResourcesTest {
       var future = client.sendAsync(request, HttpResponse.BodyHandlers.ofLines())
         .thenAccept(res -> res.body().forEach(l -> {
           if (l.contains("TEMPLATE_CREATED")) {
+            logger.info("Event received: " + l);
             eventReceived.set(true);
           }
         })).exceptionally(t -> {

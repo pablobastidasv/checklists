@@ -8,10 +8,14 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.GET;
 import jakarta.ws.rs.Path;
 import jakarta.ws.rs.core.MediaType;
+import org.jboss.logging.Logger;
 import org.jboss.resteasy.reactive.RestStreamElementType;
+
 
 @Path("/templates/events")
 public class GetTemplatesEvents {
+
+  private final static Logger logger = Logger.getLogger(GetTemplatesEvents.class.getName());
 
   @Inject
   EventsService eventsService;
@@ -20,6 +24,7 @@ public class GetTemplatesEvents {
   @RestStreamElementType(MediaType.APPLICATION_JSON)
   @Authenticated
   public Multi<DomainEvent<?>> getEvents() {
+    logger.debug("User connecting to templates events stream.");
     return eventsService.events();
   }
 
