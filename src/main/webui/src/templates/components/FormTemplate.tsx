@@ -1,29 +1,26 @@
-import { v4 as uuidv4 } from "uuid";
-import { clsx } from 'clsx';
-import { z } from "zod";
-import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { clsx } from 'clsx';
+import { useForm } from "react-hook-form";
+import { z } from "zod";
 import Button from "../../atoms/Button";
 import type { Template } from "../models/Template";
 
 const templateSchema = z.object({
-  id: z.string().uuid(),
   name: z.string().min(1),
   description: z.string().min(1),
 });
 
-interface TemplateForm extends z.infer<typeof templateSchema> { }
+interface TemplateFormFields extends z.infer<typeof templateSchema> { }
 
 interface FormTemplateProps {
-  onSubmit: (template: Template) => Promise<void> | void;
+  onSubmit: (template: TemplateFormFields) => Promise<void> | void;
   onCancel: () => Promise<void> | void;
 }
 
 const FormTemplate = ({ onSubmit, onCancel }: FormTemplateProps) => {
-  const { reset, register, handleSubmit, formState: { errors } } = useForm<TemplateForm>({
+  const { reset, register, handleSubmit, formState: { errors } } = useForm<TemplateFormFields>({
     resolver: zodResolver(templateSchema),
     defaultValues: {
-      id: uuidv4(),
       name: '',
       description: '',
     },
@@ -34,7 +31,7 @@ const FormTemplate = ({ onSubmit, onCancel }: FormTemplateProps) => {
     reset();
   }
 
-  const handleOnSubmit = async (template: TemplateForm) => {
+  const handleOnSubmit = async (template: TemplateFormFields) => {
     await onSubmit(template as Template); // parsing from zod Template to Domain Template
     reset();
   }
@@ -79,4 +76,4 @@ const FormTemplate = ({ onSubmit, onCancel }: FormTemplateProps) => {
   )
 }
 
-export default FormTemplate;
+export { FormTemplate, type TemplateFormFields };

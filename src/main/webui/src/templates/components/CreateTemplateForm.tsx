@@ -1,14 +1,19 @@
 import { useState } from "react";
 
+import { BiPlus } from "react-icons/bi";
+import { v4 as uuidv4 } from "uuid";
 import Button from "../../atoms/Button";
 import Modal from "../../molecules/Modal";
-import { BiPlus } from "react-icons/bi";
 import postTemplate from "../api/PostTemplate";
-import FormTemplate from "./FormTemplate";
-import type { Template } from "../models/Template";
+import { FormTemplate, type TemplateFormFields } from "./FormTemplate";
 
 const CreateTemplateFormModal = () => {
   const [open, setOpen] = useState(false);
+  const [id, setId] = useState(uuidv4());
+
+  const onModalOpen = () => {
+    setId(uuidv4());
+  }
 
   const _closeModal = () => {
     setOpen(false);
@@ -18,8 +23,8 @@ const CreateTemplateFormModal = () => {
     _closeModal();
   }
 
-  const onSubmit = async (template: Template) => {
-    await postTemplate(template);
+  const onSubmit = async (template: TemplateFormFields) => {
+    await postTemplate({ ...template, id });
     _closeModal();
   }
 
@@ -30,6 +35,7 @@ const CreateTemplateFormModal = () => {
         Create Template
       </Button>
       <Modal isOpen={open}
+        onOpen={onModalOpen}
         onClose={handleOnCancel}
         title="Create Template">
         <FormTemplate onSubmit={onSubmit}
